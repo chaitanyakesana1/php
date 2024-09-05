@@ -19,28 +19,19 @@ RUN apt-get update && \
         pkg-config \
     && python -m pip install --upgrade pip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Copy and install Python dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --root-user-action=ignore -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . /app/
 
-# Set environment variables for Django superuser
-ENV DJANGO_SUPERUSER_USERNAME=admin
-ENV DJANGO_SUPERUSER_EMAIL=admin@example.com
-ENV DJANGO_SUPERUSER_PASSWORD=adminpassword
-
-# Run migrations, create superuser, and collect static files
-RUN python manage.py makemigrations && \
-    python manage.py migrate && \
-    python create_superuser.py && \
-    python manage.py collectstatic --no-input
-
-
-# Expose port
+# Expose port (adjust as necessary)
 EXPOSE 8000
 
+# Run migrations and collect static files (adjust as necessary)
+RUN python manage.py migrate
+RUN python manage.py collectstatic --no-input
+
 # Run the Django development server
-CMD ["gunicorn", "--bind", ":8000", "slnone.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
